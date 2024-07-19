@@ -1,0 +1,11 @@
+---
+_meta:
+  type: "rolesmapping"
+  config_version: 2
+# Doar mappinguri noi. Nu poți suprascrie cele vechi. Eroare: Cannot override static roles
+dashboards:
+  reserved: false
+  description: "Stub de mapare a rolurilor pentru userul dashboards"
+#   description: "Mapare a userilor care au declarate în backend roles cele de aici. Numele ales pentru acest mapping are rolurile definite în roles.yml"
+# 7 known properties: "index_permissions", "reserved", "hidden", "description", "static", "cluster_permissions", "tenant_permissions"
+# Acum, toți userii care au backend_roles "admin" și "Dashboard users" precizate în internal_users.yaml, li se vor atribui automat rolului de securitate "indicesallaccess"

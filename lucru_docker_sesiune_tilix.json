@@ -1,0 +1,51 @@
+{
+    "child": {
+        "child1": {
+            "child1": {
+                "directory": "\/home\/nicolaie\/Documents\/NIPNE\/cluster-opensearch",
+                "height": 327,
+                "profile": "2b7c4080-0ddd-46c5-8f23-563fd3ba789d",
+                "readOnly": false,
+                "synchronizedInput": true,
+                "type": "Terminal",
+                "uuid": "1b8b7f02-cbcc-4af4-945b-628cb10d4eb6",
+                "width": 1920
+            },
+            "child2": {
+                "directory": "\/home\/nicolaie\/Documents\/NIPNE\/cluster-opensearch",
+                "height": 241,
+                "profile": "2b7c4080-0ddd-46c5-8f23-563fd3ba789d",
+                "readOnly": false,
+                "synchronizedInput": true,
+                "type": "Terminal",
+                "uuid": "ca921de1-bb63-46df-ad4c-a8aea064ed83",
+                "width": 1920
+            },
+            "orientation": 1,
+            "position": 33,
+            "ratio": 0.574692442882249521,
+            "type": "Paned"
+        },
+        "child2": {
+            "directory": "\/home\/nicolaie\/Documents\/NIPNE\/cluster-opensearch",
+            "height": 408,
+            "profile": "2b7c4080-0ddd-46c5-8f23-563fd3ba789d",
+            "readOnly": false,
+            "synchronizedInput": true,
+            "type": "Terminal",
+            "uuid": "ce9db74b-6589-4808-abae-082a8a589165",
+            "width": 1920
+        },
+        "orientation": 1,
+        "position": 58,
+        "ratio": 0.581799591002045036,
+        "type": "Paned"
+    },
+    "height": 978,
+    "name": "${title}",
+    "synchronizedInput": false,
+    "type": "Session",
+    "uuid": "48f460e3-de5a-4c1d-addc-1c4bfacec873",
+    "version": "1.0",
+    "width": 1920
+}
