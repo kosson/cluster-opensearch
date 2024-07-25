@@ -2,6 +2,12 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../IVENIO_RDM_NIPNE_WORK/SCRIPTURI.TIMI/ULTIMA.VERSIUNE/installer"
+		},
+		{
+			"path": "../IVENIO_RDM_NIPNE_WORK/SCRIPTURI.TIMI/ULTIMA.VERSIUNE/installer_modded_one_machine"
 		}
 	],
 	"settings": {}

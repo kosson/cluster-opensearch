@@ -4,7 +4,7 @@ FROM opensearchproject/opensearch:${OPEN_SEARCH_VERSION}
 # ADD assets/opensearch/securityadminrun.sh /usr/share/opensearch/config/
 # COPY --chmod=755 assets/opensearch/init.sh /usr/share/opensearch/config/
 # COPY assets/opensearch/init.sh /usr/share/opensearch/config/
-# Copy all the required resources right from the building of the image
+## Copy all the required resources right from the building of the image
 # COPY --chown=opensearch:opensearch assets/opensearch/config/os01/opensearch.yml /usr/share/opensearch/config/
 # COPY --chown=opensearch:opensearch assets/opensearch/certs/admin.pem /usr/share/opensearch/config/
 # COPY --chown=opensearch:opensearch assets/opensearch/certs/root-ca.pem usr/share/opensearch/config/root-ca.pem

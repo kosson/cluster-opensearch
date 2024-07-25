@@ -9,12 +9,12 @@ services:
     # user: "1000"
     container_name: os01
     volumes:
-      - ./assets/opensearch/certs/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
-      - ./assets/opensearch/certs/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
-      - ./assets/opensearch/certs/admin.pem:/usr/share/opensearch/config/admin.pem
-      - ./assets/opensearch/certs/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
-      - ./assets/opensearch/certs/os01.pem:/usr/share/opensearch/config/os01.pem
-      - ./assets/opensearch/certs/os01-key.pem:/usr/share/opensearch/config/os01-key.pem
+      - ./assets/ssl/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
+      - ./assets/ssl/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
+      - ./assets/ssl/admin.pem:/usr/share/opensearch/config/admin.pem
+      - ./assets/ssl/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
+      - ./assets/ssl/os01.pem:/usr/share/opensearch/config/os01.pem
+      - ./assets/ssl/os01-key.pem:/usr/share/opensearch/config/os01-key.pem
       - ./assets/opensearch/config/os01/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os01/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
       - ./assets/opensearch/config/os01/opensearch.yml:/usr/share/opensearch/config/opensearch.yml      
@@ -69,30 +69,16 @@ services:
         max-file: "3"
         labels: "production_status"
         env: "os"
-  # initializer:
-  #   build:
-  #     context: .
-  #     dockerfile: assets/initializer/Dockerfile
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #   container_name: initializer
-  #   depends_on:
-  #     - os01
-  #   command: ["sh","-c","sleep 15 && curl -k --cert assets/opensearch/certs/admin.pem --key assets/opensearch/certs/admin-key.pem -XGET https://os01:9200 -u admin:test@Cici24#ANA"]
-  #   # command: ["/securityadmin.sh"]
-  #   networks:
-  #     - osearch
   os02:
     image: opensearchproject/opensearch:${OPEN_SEARCH_VERSION}
     container_name: os02
     volumes:
-      - ./assets/opensearch/certs/os02.pem:/usr/share/opensearch/config/os02.pem
-      - ./assets/opensearch/certs/os02-key.pem:/usr/share/opensearch/config/os02-key.pem
-      - ./assets/opensearch/certs/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
-      - ./assets/opensearch/certs/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
-      - ./assets/opensearch/certs/admin.pem:/usr/share/opensearch/config/admin.pem
-      - ./assets/opensearch/certs/admin-key.pem:/usr/share/opensearch/config/admin-key.pem      
+      - ./assets/ssl/os02.pem:/usr/share/opensearch/config/os02.pem
+      - ./assets/ssl/os02-key.pem:/usr/share/opensearch/config/os02-key.pem
+      - ./assets/ssl/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
+      - ./assets/ssl/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
+      - ./assets/ssl/admin.pem:/usr/share/opensearch/config/admin.pem
+      - ./assets/ssl/admin-key.pem:/usr/share/opensearch/config/admin-key.pem      
       - ./assets/opensearch/config/os02/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
       - ./assets/opensearch/config/os02/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os02/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
@@ -120,6 +106,7 @@ services:
         hard: 65536
     networks:
       - osearch
+    restart: on-failure
     # depends_on:
     #   os01:
     #     condition: service_healthy      
@@ -127,12 +114,12 @@ services:
     image: opensearchproject/opensearch:${OPEN_SEARCH_VERSION}
     container_name: os03
     volumes:
-      - ./assets/opensearch/certs/os03.pem:/usr/share/opensearch/config/os03.pem
-      - ./assets/opensearch/certs/os03-key.pem:/usr/share/opensearch/config/os03-key.pem
-      - ./assets/opensearch/certs/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
-      - ./assets/opensearch/certs/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
-      - ./assets/opensearch/certs/admin.pem:/usr/share/opensearch/config/admin.pem
-      - ./assets/opensearch/certs/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
+      - ./assets/ssl/os03.pem:/usr/share/opensearch/config/os03.pem
+      - ./assets/ssl/os03-key.pem:/usr/share/opensearch/config/os03-key.pem
+      - ./assets/ssl/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
+      - ./assets/ssl/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
+      - ./assets/ssl/admin.pem:/usr/share/opensearch/config/admin.pem
+      - ./assets/ssl/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
       - ./assets/opensearch/config/os03/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
       - ./assets/opensearch/config/os03/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os03/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
@@ -161,16 +148,17 @@ services:
         hard: 65536
     networks:
       - osearch
+    restart: on-failure
   os04:
     image: opensearchproject/opensearch:${OPEN_SEARCH_VERSION}
     container_name: os04
     volumes:
-      - ./assets/opensearch/certs/os04.pem:/usr/share/opensearch/config/os04.pem
-      - ./assets/opensearch/certs/os04-key.pem:/usr/share/opensearch/config/os04-key.pem
-      - ./assets/opensearch/certs/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
-      - ./assets/opensearch/certs/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
-      - ./assets/opensearch/certs/admin.pem:/usr/share/opensearch/config/admin.pem
-      - ./assets/opensearch/certs/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
+      - ./assets/ssl/os04.pem:/usr/share/opensearch/config/os04.pem
+      - ./assets/ssl/os04-key.pem:/usr/share/opensearch/config/os04-key.pem
+      - ./assets/ssl/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
+      - ./assets/ssl/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
+      - ./assets/ssl/admin.pem:/usr/share/opensearch/config/admin.pem
+      - ./assets/ssl/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
       - ./assets/opensearch/config/os04/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
       - ./assets/opensearch/config/os04/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os04/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
@@ -198,17 +186,18 @@ services:
         soft: 65536
         hard: 65536
     networks:
-      - osearch      
+      - osearch
+    restart: on-failure    
   os05:
     image: opensearchproject/opensearch:${OPEN_SEARCH_VERSION}
     container_name: os05
     volumes:
-      - ./assets/opensearch/certs/os05.pem:/usr/share/opensearch/config/os05.pem
-      - ./assets/opensearch/certs/os05-key.pem:/usr/share/opensearch/config/os05-key.pem
-      - ./assets/opensearch/certs/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
-      - ./assets/opensearch/certs/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
-      - ./assets/opensearch/certs/admin.pem:/usr/share/opensearch/config/admin.pem
-      - ./assets/opensearch/certs/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
+      - ./assets/ssl/os05.pem:/usr/share/opensearch/config/os05.pem
+      - ./assets/ssl/os05-key.pem:/usr/share/opensearch/config/os05-key.pem
+      - ./assets/ssl/root-ca.pem:/usr/share/opensearch/config/root-ca.pem
+      - ./assets/ssl/root-ca-key.pem:/usr/share/opensearch/config/root-ca-key.pem
+      - ./assets/ssl/admin.pem:/usr/share/opensearch/config/admin.pem
+      - ./assets/ssl/admin-key.pem:/usr/share/opensearch/config/admin-key.pem
       - ./assets/opensearch/config/os05/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
       - ./assets/opensearch/config/os05/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os05/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
@@ -237,18 +226,19 @@ services:
         soft: 65536
         hard: 65536
     networks:
-      - osearch    
+      - osearch
+    restart: on-failure
   dashboards:
     image: opensearchproject/opensearch-dashboards:${OPEN_SEARCH_VERSION}
     container_name: dashboards
     hostname: dashboards    
     volumes:
-      - ./assets/dashboards/root-ca.pem:/usr/share/opensearch-dashboards/config/root-ca.pem
-      - ./assets/dashboards/root-ca-key.pem:/usr/share/opensearch-dashboards/config/root-ca-key.pem
-      - ./assets/dashboards/admin.pem:/usr/share/opensearch-dashboards/config/admin.pem
-      - ./assets/dashboards/admin-key.pem:/usr/share/opensearch-dashboards/config/admin-key.pem       
-      - ./assets/dashboards/dashboards.pem:/usr/share/opensearch-dashboards/config/dashboards.pem
-      - ./assets/dashboards/dashboards-key.pem:/usr/share/opensearch-dashboards/config/dashboards-key.pem
+      - ./assets/ssl/root-ca.pem:/usr/share/opensearch-dashboards/config/root-ca.pem
+      - ./assets/ssl/root-ca-key.pem:/usr/share/opensearch-dashboards/config/root-ca-key.pem
+      - ./assets/ssl/admin.pem:/usr/share/opensearch-dashboards/config/admin.pem
+      - ./assets/ssl/admin-key.pem:/usr/share/opensearch-dashboards/config/admin-key.pem       
+      - ./assets/ssl/dashboards.pem:/usr/share/opensearch-dashboards/config/dashboards.pem
+      - ./assets/ssl/dashboards-key.pem:/usr/share/opensearch-dashboards/config/dashboards-key.pem
       - ./assets/dashboards/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
     ports:
       - 5601:5601

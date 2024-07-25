@@ -1,0 +1,109 @@
+# Cluster setup
+
+Mărește ulimits pentru mașina gazdă pentru ca aceasta să permită I/O la cote mai înalte:
+
+```bash
+sudo sysctl -w vm.max_map_count=512000
+```
+
+Poți face această setare permanentă scriind-o în `/etc/sysctl.conf` după care execuți comanda: `sysctl -p`.
+
+## Pașii de inițializare a clusterului
+
+Reține faptul că trebuie să rulezi comenzile din rădăcina proiectului.
+
+### Pasul 1
+
+Curăță toate datele dintr-o sesiune anterioară, dacă acesta este cazul: `bash restart-to-clear-cluster.sh`.
+Generează certificatele necesare dacă acestea nu au fost create anterior: `bash opensearch_local_certificates_creator.sh`. Reține faptul că vor fi create certificate pentru dezvoltare locală. Root CA-ul este self-signed.
+
+### Pasul 2
+
+Pornește clusterul generând containerele: `docker compose up -d`. Outputul îl vezi rulând comanda: `docker logs os01 -f`. Rezultatul este apariția în prompt a faptului că mai întâi de toate este activat pluginul de securitate:
+
+```text
+Enabling OpenSearch Security Plugin
+Disabling execution of install_demo_configuration.sh for OpenSearch Security Plugin
+Enabling execution of OPENSEARCH_HOME/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli for OpenSearch Performance Analyzer Plugin
+```
+
+Indiferent de erorile care apar, repornești containerul: `docker compose restart os01`.
+
+Trebuie să apară eroarea `ERROR org.opensearch.security.configuration.ConfigurationLoaderSecurity7 - Failure no such index [.opendistro_security] retrieving configuration for [ACTIONGROUPS, ALLOWLIST, AUDIT, CONFIG, INTERNALUSERS, NODESDN, ROLES, ROLESMAPPING, TENANTS, WHITELIST] (index=.opendistro_security)`. În acest caz, treci la pasul 3.
+
+Pentru a opri containerele: `docker compose down`.
+
+În cazul în care dorești distrugerea containerelor pentru a o lua de la capăt: `docker compose down -v --remove-orphans`. Eventual, refaci clusterul rulând comenzile de la pasul 1.
+
+Dacă totul este ok, ar trebui să primești date pentru `curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https://0.0.0.0:9200/_cluster/health?pretty -u admin:admin`. Remarcă faptul că `status` are valoarea `red`.
+
+### Pasul 3
+
+Rulează comanda pentru a crea datele inițiale în `.opendistro_security`:
+
+```bash
+docker exec os01 bash -c "chmod +x /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh && bash /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh -cd /usr/share/opensearch/config/opensearch-security/ -cacert /usr/share/opensearch/config/root-ca.pem -cert /usr/share/opensearch/config/admin.pem -key /usr/share/opensearch/config/admin-key.pem -icl -nhnv -t config -h os01 --accept-red-cluster"
+```
+
+Răspunsul este similar cu:
+
+```text
+**************************************************************************
+** This tool will be deprecated in the next major release of OpenSearch **
+** https://github.com/opensearch-project/security/issues/1755           **
+**************************************************************************
+Security Admin v7
+Will connect to os01:9200 ... done
+Connected as "CN=admin,OU=DFCTI,O=NIPNE,L=MAGURELE,ST=ILFOV,C=RO"
+OpenSearch Version: 2.15.0
+Contacting opensearch cluster 'opensearch' ...
+Clustername: opensearch
+Clusterstate: RED
+Number of nodes: 5
+Number of data nodes: 4
+.opendistro_security index already exists, so we do not need to create one.
+ERR: .opendistro_security index state is RED.
+Populate config from /usr/share/opensearch/config/opensearch-security/
+Will update '/config' with /usr/share/opensearch/config/opensearch-security/config.yml 
+   FAIL: Configuration for 'config' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-6 [ACTIVE]
+Will update '/roles' with /usr/share/opensearch/config/opensearch-security/roles.yml 
+   FAIL: Configuration for 'roles' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-7 [ACTIVE]
+Will update '/rolesmapping' with /usr/share/opensearch/config/opensearch-security/roles_mapping.yml 
+   FAIL: Configuration for 'rolesmapping' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-8 [ACTIVE]
+Will update '/internalusers' with /usr/share/opensearch/config/opensearch-security/internal_users.yml 
+   FAIL: Configuration for 'internalusers' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-9 [ACTIVE]
+Will update '/actiongroups' with /usr/share/opensearch/config/opensearch-security/action_groups.yml 
+   FAIL: Configuration for 'actiongroups' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-10 [ACTIVE]
+Will update '/tenants' with /usr/share/opensearch/config/opensearch-security/tenants.yml 
+   FAIL: Configuration for 'tenants' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-11 [ACTIVE]
+Will update '/nodesdn' with /usr/share/opensearch/config/opensearch-security/nodes_dn.yml 
+   FAIL: Configuration for 'nodesdn' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-12 [ACTIVE]
+Will update '/whitelist' with /usr/share/opensearch/config/opensearch-security/whitelist.yml 
+   FAIL: Configuration for 'whitelist' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-13 [ACTIVE]
+Will update '/audit' with /usr/share/opensearch/config/opensearch-security/audit.yml 
+   FAIL: Configuration for 'audit' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-14 [ACTIVE]
+Will update '/allowlist' with /usr/share/opensearch/config/opensearch-security/allowlist.yml 
+   FAIL: Configuration for 'allowlist' failed because of java.net.SocketTimeoutException: 30,000 milliseconds timeout on connection http-outgoing-15 [ACTIVE]
+ERR: cannot upload configuration, see errors above
+```
+
+Repornește containerul `os01`: `docker compose restart os01`. 
+
+### Pasul 4
+
+Rulează scriptul care inițializează datele de conectare: `bash ./initial_api_calls.sh`. Repornește containerul `os01`: `docker compose restart os01`.
+
+### Pasul 5
+
+Repornește containerul `dashboards`: `docker compose restart dashboards`.
+
+Trebuie să ajungi la un răspuns similar cu următorul:
+
+```text
+{"type":"log","@timestamp":"2024-07-25T08:24:22Z","tags":["listening","info"],"pid":1,"message":"Server running at https://0.0.0.0:5601"}
+{"type":"log","@timestamp":"2024-07-25T08:24:22Z","tags":["info","http","server","OpenSearchDashboards"],"pid":1,"message":"http server running at https://0.0.0.0:5601"}
+```
+
+## Investigații
+
+Pentru a vedea care sunt rolurile mapate, se va executa comanda: `curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET "https://0.0.0.0:9200/_plugins/_security/api/rolesmapping" | jq .`.
