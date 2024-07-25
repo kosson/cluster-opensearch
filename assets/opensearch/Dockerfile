@@ -1,9 +1,6 @@
 ARG OPEN_SEARCH_VERSION
 FROM opensearchproject/opensearch:${OPEN_SEARCH_VERSION}
-# ADD assets/opensearch/init.sh /usr/share/opensearch/config/
-# ADD assets/opensearch/securityadminrun.sh /usr/share/opensearch/config/
 # COPY --chmod=755 assets/opensearch/init.sh /usr/share/opensearch/config/
-# COPY assets/opensearch/init.sh /usr/share/opensearch/config/
 ## Copy all the required resources right from the building of the image
 # COPY --chown=opensearch:opensearch assets/opensearch/config/os01/opensearch.yml /usr/share/opensearch/config/
 # COPY --chown=opensearch:opensearch assets/opensearch/certs/admin.pem /usr/share/opensearch/config/
@@ -20,6 +17,4 @@ FROM opensearchproject/opensearch:${OPEN_SEARCH_VERSION}
 # COPY --chown=opensearch:opensearch assets/opensearch/config/os01/opensearch-security/nodes_dn.yml usr/share/opensearch/config/opensearch-security/nodes_dn.yml
 USER root
 RUN dnf -y install iputils net-tools curl procps --skip-broken
-# RUN chmod +x /usr/share/opensearch/config/init.sh /usr/share/opensearch/config/securityadminrun.sh
 USER 1000
-# CMD ["/usr/share/opensearch/config/init.sh"]

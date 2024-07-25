@@ -1,6 +1,6 @@
 # Cluster setup
 
-Mărește ulimits pentru mașina gazdă pentru ca aceasta să permită I/O la cote mai înalte:
+Mărește `ulimits` pentru mașina gazdă pentru ca aceasta să permită I/O la cote mai înalte:
 
 ```bash
 sudo sysctl -w vm.max_map_count=512000
