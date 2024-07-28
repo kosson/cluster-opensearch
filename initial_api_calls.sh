@@ -66,7 +66,7 @@ if [ -f "$config_file" ]; then
         "backend_roles": ["admin"],
         "hosts": ["dashboards","os01"], 
         "users": ["admin","CN=admin,OU=DFCTI,O=NIPNE,L=MAGURELE,ST=ILFOV,C=RO"]
-    }';
+    }';  
     # Adaug mappingul și pentru dashboards
     curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XPUT "https://0.0.0.0:9200/_plugins/_security/api/rolesmapping/dashboards" -H 'Content-Type: application/json' -d'
     {
@@ -81,19 +81,4 @@ if [ -f "$config_file" ]; then
         "hosts": ["dashboards","os01","0.0.0.0"], 
         "users": ["dashboards","admin"]
     }';
-    # Fă mapping pentru propriul rol, altfel nu poți accesa propriile indexuri
-    curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XPUT "https://0.0.0.0:9200/_plugins/_security/api/rolesmapping/own_index" -H 'Content-Type: application/json' -d'
-    {
-        "backend_roles": [],
-        "hosts": [], 
-        "users": ["*"],
-        "description": "Allow full access to an index named like the username"
-    }'
-    # Fă mapping și pentru all_access pentru rolul de admin
-    curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XPUT "https://0.0.0.0:9200/_plugins/_security/api/rolesmapping/all_access" -H 'Content-Type: application/json' -d'
-    {
-        "backend_roles": ["admin","CN=admin,OU=DFCTI,O=NIPNE,L=MAGURELE,ST=ILFOV,C=RO"],
-        "hosts": ["dashboards","os01"], 
-        "users": []
-    }'
 fi

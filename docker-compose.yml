@@ -57,6 +57,7 @@ services:
         hard: 65536
     networks:
       - osearch
+      - knonikl
     healthcheck:
       test: ["CMD-SHELL", "curl -k -XGET https://0.0.0.0:9200/_cat/nodes?pretty -u 'admin:test@Cici24#ANA' || exit 1"]
       interval: 5s
@@ -249,9 +250,9 @@ services:
       # - GID=1000
       - OPENSEARCH_HOSTS=["https://os01:9200"]
       # - OPENSEARCH_HOSTS=["https://os01:9200","https://os02:9200","https://os03:9200","https://os04:9200","https://os05:9200"]
-      #- DISABLE_SECURITY_DASHBOARDS_PLUGIN=true # disables security dashboards plugin in OpenSearch Dashboards
     networks:
       - osearch
+      - knonikl
 # volumes:
 #   os01data:
 #   os02data:
@@ -260,3 +261,4 @@ services:
 #   os05data:
 networks:
   osearch:
+  knonikl:
