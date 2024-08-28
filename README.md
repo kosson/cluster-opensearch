@@ -1,23 +1,33 @@
 # Cluster setup
 
-Mărește `ulimits` pentru mașina gazdă pentru ca aceasta să permită I/O la cote mai înalte:
+## About
+
+This repo is designed to realize an OpenSearch cluster with five nodes using Docker Compose. This project has been create on an Ubuntu 23.04. Docker should be installed already.
+
+Acesta este un repo dedicat realizării unui cluster OpenSearch cu 5 noduri folosind Docker Compose. Acest proiect este creat pe o mașină Ubuntu 23.04. Docker-ul ar trebui să fie deja instalat.
+
+## Setarea mașinii gazdă
+
+Mărește `ulimits` pentru mașina gazdă pentru ca aceasta să permită I/O la cote mai înalte.
 
 ```bash
 sudo sysctl -w vm.max_map_count=512000
 ```
 
-Poți face această setare permanentă scriind-o în `/etc/sysctl.conf` după care execuți comanda: `sysctl -p`.
+Poți face această setare permanentă scriind-o în `/etc/sysctl.conf`, după care execuți comanda: `sysctl -p`.
 
-Configurează fișierul `opensearch_installer_vars.cfg` cu valorile care sunt utile pentru propriul proiect. La fel și fișierul `.env`.
+## Configurare inițială
+
+Configurează fișierul `opensearch_installer_vars.cfg` cu valorile care sunt caracteristice propriului proiect. La fel și în cazul fișierul `.env`.
 
 ## Pașii de inițializare a clusterului
 
-Reține faptul că trebuie să rulezi comenzile din rădăcina proiectului.
+Reține faptul că trebuie să rulezi comenzile din rădăcina proiectului, locul unde ai ales să descarci proiectul de pe Github.
 
 ### Pasul 1
 
-Curăță toate datele dintr-o sesiune anterioară, dacă acesta este cazul: `bash restart-to-clear-cluster.sh`.
-Generează certificatele necesare dacă acestea nu au fost create anterior: `bash opensearch_local_certificates_creator.sh`. Reține faptul că vor fi create certificate pentru dezvoltare locală. Root CA-ul este self-signed.
+Curăță toate datele dintr-o sesiune anterioară, dacă acesta este cazul rulând: `bash restart-to-clear-cluster.sh`.
+Generează certificatele necesare dacă acestea nu au fost create anterior rulând: `bash opensearch_local_certificates_creator.sh`. Reține faptul că vor fi create certificate pentru dezvoltare locală. Root CA-ul este self-signed.
 
 Studiază fișierul `opensearch_local_certificates_creator.sh` pentru că în acesta sunt parametrizate numele nodurilor. Vezi lista de valori din secvența `for NODE_NAME in "os01" "os02" "os03" "os04" "os05" "client" "dashboards"`. Dacă modifici oricare valoare din listă, trebuie reflectate modficările și în fișierul `initial_api_calls.sh`. Va trebui să modifici și denumirile tuturor subdirectoarelor din `./assets/opensearch/config` pentru a se potrivi alegerilor tale. Trebuie să modifici și `./assets/opensearch/config/os01/opensearch.yml`. Acesta este fișierul central de configurare. Dacă aduci modificări asupra modului în care generezi certificatele, asigură-te că toate modificările sunt reflectate și în acest fișier (căi și CN-uri).
 
@@ -43,7 +53,7 @@ Uneori apare eroarea `ERROR org.opensearch.security.configuration.ConfigurationL
 
 Pentru a opri containerele: `docker compose down`.
 
-În cazul în care dorești distrugerea containerelor pentru a o lua de la capăt: `docker compose down -v --remove-orphans`. Eventual, refaci clusterul rulând comenzile de la pasul 1.
+În cazul în care dorești distrugerea containerelor pentru a o lua de la capăt rulează: `docker compose down -v --remove-orphans`. Eventual, refaci clusterul rulând comenzile de la pasul 1.
 
 Dacă totul este ok, ar trebui să primești date pentru `curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https://0.0.0.0:9200/_cluster/health?pretty -u admin:admin`. Remarcă faptul că `status` are valoarea `red`. Verifică mai întâi dacă ai răspuns la comanda anterioară. Dacă da, sari direct la pasul 4.
 
@@ -97,17 +107,17 @@ Will update '/allowlist' with /usr/share/opensearch/config/opensearch-security/a
 ERR: cannot upload configuration, see errors above
 ```
 
-Repornește containerul `os01`: `docker compose restart os01`.
+Repornește containerul `os01` rulând: `docker compose restart os01`.
 
-La rularea scriptului `securityadmin` pur și simplu se creează indexul, dar nu sunt preluate complet datele din fișierele yaml. Este vorba despre parolele setate în `internal_users.yml`. De exemplu, userul `admin` încă va avea parola `admin`. Ceea ce prelucrează scriptul securityadmin.sh este doar ceea ce este în fișierele cu care vine imaginea. Cumva, mapările pe fișierele din mașina gazdă funcționează, dar nu sunt luate în seamă la rularea scriptului. Se va folosi API-ul pentru crearea și modificarea userilor. De altfel este specificat că se va renunța la scriptul `securityadmin.sh` în viitorul apropiat.
+La rularea scriptului `securityadmin` pur și simplu se creează indexul, dar nu sunt preluate complet datele din fișierele yaml. Este vorba despre parolele setate în `internal_users.yml`. De exemplu, userul `admin` încă va avea parola `admin`. Ceea ce prelucrează scriptul `securityadmin.sh` este doar ceea ce este în fișierele cu care vine imaginea. Cumva, mapările pe fișierele din mașina gazdă funcționează, dar nu sunt luate în seamă la rularea scriptului. Se va folosi API-ul pentru crearea și modificarea userilor. De altfel este specificat că se va renunța la scriptul `securityadmin.sh` în viitorul apropiat.
 
 ### Pasul 4
 
-Rulează scriptul care inițializează datele de conectare: `bash ./initial_api_calls.sh`. Repornește containerul `os01`: `docker compose restart os01`.
+Rulează scriptul care inițializează datele de conectare: `bash ./initial_api_calls.sh`. Repornește containerul `os01` rulând: `docker compose restart os01`.
 
 ### Pasul 5
 
-Repornește containerul `dashboards`: `docker compose restart dashboards`. Problema care apare este că Dashboards încearcă să se conecteze prea devreme și eșuează. Dacă încă nu ai configurat OpenSearch, vei avea o eroare care indică faptul că nu s-a realizat împerechierea lui OpenSearch cu Dashboards. Mesajul de eroare este similar cu cel de mai jos.
+Repornește containerul `dashboards` rulând: `docker compose restart dashboards`. Problema care apare este că Dashboards încearcă să se conecteze prea devreme și eșuează. Dacă încă nu ai configurat OpenSearch, vei avea o eroare care indică faptul că nu s-a realizat împerecherea lui OpenSearch cu Dashboards. Mesajul de eroare este similar cu cel de mai jos.
 
 ```text
 "[ConnectionError]: connect ECONNREFUSED 192.168.80.7:9200"
@@ -292,7 +302,7 @@ Cu un rezultat similar cu cel de jos:
   "principal" : "CN=dashboards,OU=DFCTI,O=NIPNE,L=MAGURELE,ST=ILFOV,C=RO",
   "peer_certificates" : "1",
   "sso_logout_url" : null
-}plugins.security.authcz.admin_dn
+}
 ```
 
 Câteva informații și despre certificatul de securitate folosit:
@@ -368,7 +378,7 @@ Cu un rezultat similar cu cel de jos.
 
 ## Autentificare
 
-Backend-urile de autentificare sunt definite în `/etc/opensearch/opensearch-security/config.yml`. Aceste backend-uri sunt înlănțuite. Acest lucru înseamnă că Security plugin va încerca să autentifice userul într-o secvență care va trece prin toate backendurile definite până când unul are succes. Indiferent de backendul folosit, credențialele sunt trimise odată cu cererea de autentificare (*request for authentication)*. Dacă un backend a verificat credențialele unui utilizator, îi va acorda acestuia backend roles-urile asociate. Furnizorul de date de autentificare determină modul în care aceste roluri sunt obținute. Când este folosit **basic authentication** se va căuta în [baza de date internă](https://opensearch.org/docs/latest/security/authentication-backends/basic-authc/#the-internal-user-database) ce role mappings sunt setate. Mai multe detalii la https://opensearch.org/docs/2.14/security/authentication-backends/basic-authc/. După ce userul a fost autentificat și rolurile din backend au fost obținute, Security plugin se folosește de *role mapping* pentru a atribui userului rolurile atribuite.
+Backend-urile de autentificare sunt definite în `/etc/opensearch/opensearch-security/config.yml`. Aceste backend-uri sunt înlănțuite. Acest lucru înseamnă că *Security plugin* va încerca să autentifice userul într-o secvență care va trece prin toate backendurile definite până când unul are succes. Indiferent de backendul folosit, credențialele sunt trimise odată cu cererea de autentificare (*request for authentication)*. Dacă un backend a verificat credențialele unui utilizator, îi va acorda acestuia backend roles-urile asociate. Furnizorul de date de autentificare determină modul în care aceste roluri sunt obținute. Când este folosit **basic authentication** se va căuta în [baza de date internă](https://opensearch.org/docs/latest/security/authentication-backends/basic-authc/#the-internal-user-database) ce *role mappings* sunt setate. Mai multe detalii la https://opensearch.org/docs/2.14/security/authentication-backends/basic-authc/. După ce userul a fost autentificat și rolurile din backend au fost obținute, *Security plugin* se folosește de *role mapping* pentru a atribui userului rolurile atribuite.
 
 *Client certificate authentication* oferă mai multă securitate decât `basic authentication`. Un alt avantaj este că poți să-l folosești împreună cu `basic authentication` pentru a avea un al doilea nivel de siguranță. Mai întâi, activează în `/etc/opensearch/opensearch.yml` următoarea directivă `plugins.security.ssl.http.clientauth_mode: OPTIONAL`. În `/etc/opensearch/opensearch-security/config.yml` configurează:
 
@@ -387,10 +397,9 @@ Backend-urile de autentificare sunt definite în `/etc/opensearch/opensearch-sec
           type: noop
 ```
 
-
 ## Roluri
 
-Rolurie definesc limitele de acțiune ale unei permisiuni sau a unui grup de acțiune. Poți crea roluri care au anumite privilegii, de exemplu, roluri care conțin oricare combinație de permisiuni extinse pe tot clusterul sau permisiuni specifice doar unui index, ori securitate la nivel de câmp sau chiar document. Poți conecta utilizatorii la roluri la momentul creării sau după ce utilizatorii și rolurile au fost definite. Această conexiune determină permisiunile și nivelurile de acces pentru fiecare utilizator în baza rolurilor care le-au fost atribuite. Security plugin vine cu un număr de *predefined action groups, roluri, mapping-uri și utilizatori* (vezi https://opensearch.org/docs/latest/security/access-control/index/). Aceste *entități* servesc ca default-uri de mare ajutor și constituie un bun ajutor privind modul de utilizare al pluginului.
+Rolurile definesc limitele de acțiune ale unei permisiuni sau a unui grup de acțiune. Poți crea roluri care au anumite privilegii, de exemplu, roluri care conțin oricare combinație de permisiuni extinse pe tot clusterul sau permisiuni specifice doar unui index, ori securitate la nivel de câmp sau chiar document. Poți conecta utilizatorii la roluri la momentul creării sau după ce utilizatorii și rolurile au fost definite. Această conexiune determină permisiunile și nivelurile de acces pentru fiecare utilizator în baza rolurilor care le-au fost atribuite. *Security plugin* vine cu un număr de *predefined action groups, roluri, mapping-uri și utilizatori* (vezi https://opensearch.org/docs/latest/security/access-control/index/). Aceste *entități* servesc ca default-uri de mare ajutor și constituie un bun ajutor privind modul de utilizare al pluginului.
 
 ### Concepte importante de lucru
 
@@ -400,7 +409,7 @@ Rolurie definesc limitele de acțiune ale unei permisiuni sau a unui grup de ac�
 
 #### Role
 
-Security roles definesc aria de aplicare a unei permisiuni sau a unui action group: cluster, index, document sau field. De exemplu, un rol denumit `delivery_analyst` poate să nu aibă nicio permisiune pe niciun cluster, la action group să aibă `READ` pentru toate indexurile care se potrivesc șablonului `delivery-data-*` și să acceseze toate tipurile de documente care au acele indexuri sau să acceseze toate câmpurile mai puțin `delivery_driver_name`. Rolurile sunt cele care dau permisiunile, de fapt prin operațiunea de role mapping.
+Security roles definesc aria de aplicare a unei permisiuni sau a unui action group: cluster, index, document sau field. De exemplu, un rol denumit `delivery_analyst` poate să nu aibă nicio permisiune pe niciun cluster, la *action group* să aibă `READ` pentru toate indexurile care se potrivesc șablonului `delivery-data-*` și să acceseze toate tipurile de documente care au acele indexuri sau să acceseze toate câmpurile mai puțin `delivery_driver_name`. Rolurile sunt cele care dau permisiunile, de fapt prin operațiunea de *role mapping*.
 
 #### Backend role
 
@@ -411,11 +420,9 @@ Acesta este opțional, fiind un șir de caractere ales arbitrar (o denumire arbi
 
 Sunt cei care fac apeluri pe clusterele OpenSearch. Un user are credențiale (de ex., un username și o parolă), zero sau mai multe roluri în backend și zero sau mai multe atribute definite arbitrar.
 
-
 #### Role mapping
 
-Imediat după ce s-au autentificat cu succes, userii își asumă roluri. Role mapping-ul conectează rolurile cu userii sau cu backend roles. De exemplu, conectarea rolului `kibana_user` la userul `jdoe` înseamnă că acest user va avea toate permisiunile asociate rolului `kibana_user` după ce se va autentifica. În mod similar, un mapping al rolului `all_access` la backend role-ului `admin` înseamnă că toți utilizatorii care au backend role-ul `admin` dobândesc toate permisiunile asociale lui `all_access` după ce se autentifică. Poți face mapping fiecărui rol mai multor utilizatori și/sau unor backend roles. 
-
+Imediat după ce s-au autentificat cu succes, userii își asumă roluri. Role mapping-ul conectează rolurile cu userii sau cu backend roles. De exemplu, conectarea rolului `kibana_user` la userul `jdoe` înseamnă că acest user va avea toate permisiunile asociate rolului `kibana_user` după ce se va autentifica. În mod similar, un mapping al rolului `all_access` la backend role-ului `admin` înseamnă că toți utilizatorii care au backend role-ul `admin` dobândesc toate permisiunile asociale lui `all_access` după ce se autentifică. Poți face mapping fiecărui rol mai multor utilizatori și/sau unor backend roles.
 
 ## Useri și roluri activate
 
@@ -439,7 +446,7 @@ curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https:/
 În conexiune cu accesul la OpenSearch Dashboards, am găsit rolurile:
 
 - `kibana_user`, care are setările ce ar permite accesul la Dashboards,
-- `kibana_read_only`, care permite doar citirea datelor ,
+- `kibana_read_only`, care permite doar citirea datelor,
 - `kibana_server`, care oferă minimum de permisiuni pentru serverul Dashboards (indexul `.opensearch_dashboards`).
 
 ### opendistro_security_roles și backend_roles
@@ -454,11 +461,9 @@ kibana_read_only:
 
 Array-ul `opendistro_security_roles` trebuie să conțină roluri care deja au fost definite (vezi pe `_plugins/_security/api/roles`).
 
-
 ### Maparea rolurilor
 
 Pentru a vedea care sunt rolurile mapate, se va executa comanda: `curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET "https://0.0.0.0:9200/_plugins/_security/api/rolesmapping" | jq .`.
-
 
 ## Configurările de securitate
 
@@ -468,11 +473,9 @@ Uneori ai nevoie de câteva detalii privind setările de securitate ale clusteru
 curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https://0.0.0.0:9200/_plugins/_security/api/securityconfig | jq .config.dynamic.kibana
 ```
 
-## Teste sintentice
+## Teste sintetice
 
-Când clusterul este pregătit, ai nevoie de informații pe care să le integrezi în diferite fluxuri de lucru.
-
-Obține informații despre nodul pe care ajunge interogarea și cum se numește clusterul.
+Când clusterul este pregătit, ai nevoie de informații pe care să le integrezi în diferite fluxuri de lucru. Obține informații despre nodul pe care ajunge interogarea și cum se numește clusterul.
 
 ```bash
 curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https://localhost:9200/_cluster/settings?include_defaults=true | jq '.defaults | {nume_nod: .cluster.name, nume_cluster: .cluster.initial_cluster_manager_nodes[0]}'
@@ -503,8 +506,7 @@ curl -k -u 'dashboards:test@Cici24#ANA' -XGET "https://0.0.0.0:9200/_plugins/_se
 
 ## Management de containere cu Portainer.io
 
-Pornește un container Portainer. Mai întâi, creează volumul pentru date: `docker volume create portainer_data`.
-Apoi află care este rețeaua la care vrei containerul Portainer să fie atașat: `docker network ls`. Pentru exemplificare, am următoarele date:
+Pornește un container Portainer. Mai întâi, creează volumul pentru date: `docker volume create portainer_data`. Apoi află care este rețeaua la care vrei containerul Portainer să fie atașat: `docker network ls`. Pentru exemplificare, am următoarele date:
 
 ```bash
 NETWORK ID     NAME                         DRIVER    SCOPE
@@ -527,6 +529,8 @@ Dacă la rularea comenzii, ai o eroare similară cu `docker: Error response from
 Aplicația va fi disponibilă pe `http://0.0.0.0:9000/`.
 
 ## Test creare index
+
+În acest moment ai nevoie să faci teste pentru a te asigura că totul funcționează corect.
 
 ```bash
 curl -XPUT -k -u 'admin:test@Cici24#ANA' 'https://0.0.0.0:9200/test-index'
