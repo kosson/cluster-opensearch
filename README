@@ -222,7 +222,7 @@ Mai multe detalii la https://opensearch.org/docs/latest/security/access-control/
 
 ### Userul admin
 
-În cazul comenzii de mai jos sunt aduse datele doar pentru utilizatorul admin. Utilizatorul admin este precizat de certificatele utilizate pentru a autentifica cererea.
+În cazul comenzii de mai jos sunt aduse datele doar pentru utilizatorul `admin`. Utilizatorul `admin` este precizat de certificatele utilizate pentru a autentifica cererea.
 
 ```bash
 curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https://0.0.0.0:9200/_opendistro/_security/authinfo?pretty
@@ -519,7 +519,7 @@ d7dac01faf92   cluster-opensearch_osearch   bridge    local
 În acest caz, vom folosi o rețea suplimentară la care sunt atașate doar două containere din clusterul OpenSearch: `cluster-opensearch_knonikl`.
 
 ```bash
-docker run -d -p 9000:9000 --network cluster-opensearch_knonikl --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+docker run -d -p 9000:9000 --network cluster-opensearch_knonikl --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
 ```
 
 Dacă la rularea comenzii, ai o eroare similară cu `docker: Error response from daemon: Conflict. The container name "/portainer" is already in use by container "c64c02f4924abfdf3d846b8b4c046032dece71aa91cedbc7035393e467608ad3". You have to remove (or rename) that container to be able to reuse that name.` înseamnă că deja ai un container numit `portainer`. Poți să-l ștergi cu `dockr rm portainer`. Dulează din nou comanda care creează containerul.

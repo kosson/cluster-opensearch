@@ -4,10 +4,16 @@
 			"path": "."
 		},
 		{
-			"path": "../IVENIO_RDM_NIPNE_WORK/SCRIPTURI.TIMI/ULTIMA.VERSIUNE/installer"
+			"path": "../python-node-invenio"
 		},
 		{
-			"path": "../IVENIO_RDM_NIPNE_WORK/SCRIPTURI.TIMI/ULTIMA.VERSIUNE/installer_modded_one_machine"
+			"path": "../PostgreSQL"
+		},
+		{
+			"path": "../redis"
+		},
+		{
+			"path": "../RabbitMQ"
 		}
 	],
 	"settings": {}
