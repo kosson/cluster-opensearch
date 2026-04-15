@@ -136,7 +136,7 @@ Chiar dacă următoarea comandă este parte a pachetului de inițializare din `i
 
 ### Investigarea clusterului
 
-Pentru a obține o perspectivă asupra clusterului, rulează conanda pe `_cat/nodes`.
+Pentru a obține o perspectivă asupra clusterului, rulează comanda pe `_cat/nodes`.
 
 ```bash
 curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https://0.0.0.0:9200/_cat/nodes?v
