@@ -1,20 +1,7 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../python-node-invenio"
-		},
-		{
-			"path": "../PostgreSQL"
-		},
-		{
-			"path": "../redis"
-		},
-		{
-			"path": "../RabbitMQ"
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": "OpenSearch-2.15.-Invenio-3"
+        }
+    ]
 }
