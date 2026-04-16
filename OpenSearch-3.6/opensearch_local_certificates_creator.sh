@@ -1,5 +1,6 @@
-#!/bin/sh
-config_file="opensearch_installer_vars.cfg"
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+config_file="$SCRIPT_DIR/opensearch_installer_vars.cfg"
 
 if [ -f "$config_file" ]; then
     source "$config_file"

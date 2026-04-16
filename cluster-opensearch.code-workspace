@@ -1,7 +1,8 @@
 {
-    "folders": [
-        {
-            "path": "OpenSearch-2.15.-Invenio-3"
-        }
-    ]
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
 }
