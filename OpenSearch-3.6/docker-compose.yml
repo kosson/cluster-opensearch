@@ -237,7 +237,7 @@ services:
       - ./assets/ssl/root-ca.pem:/usr/share/opensearch-dashboards/config/root-ca.pem
       - ./assets/ssl/root-ca-key.pem:/usr/share/opensearch-dashboards/config/root-ca-key.pem
       - ./assets/ssl/admin.pem:/usr/share/opensearch-dashboards/config/admin.pem
-      - ./assets/ssl/admin-key.pem:/usr/share/opensearch-dashboards/config/admin-key.pem       
+      - ./assets/ssl/admin-key.pem:/usr/share/opensearch-dashboards/config/admin-key.pem
       - ./assets/ssl/dashboards.pem:/usr/share/opensearch-dashboards/config/dashboards.pem
       - ./assets/ssl/dashboards-key.pem:/usr/share/opensearch-dashboards/config/dashboards-key.pem
       - ./assets/dashboards/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
@@ -250,6 +250,10 @@ services:
     networks:
       - osearch
       - knonikl
+    depends_on:
+      - os01
+      - os02
+      - os03
 # volumes: # activate in case you want to create container volumes for the OpenSearch data directories instead of bind mounting local directories
 #   os01data:
 #   os02data:

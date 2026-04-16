@@ -3,12 +3,10 @@ config_file="opensearch_installer_vars.cfg"
 
 if [ -f "$config_file" ]; then
     source "$config_file"
-
-    #CERT_DN="/C=RO/ST=ILFOV/L=MAGURELE/O=NIPNE/OU=DFCTI"
     # Root CA key creation
     openssl genrsa -out $OS_CERTS_PATH/root-ca-key.pem 2048
     openssl req -new -x509 -sha256 -key $OS_CERTS_PATH/root-ca-key.pem -subj "$CERT_DN/CN=$LOCAL_ROOT_CA" -out $OS_CERTS_PATH/root-ca.pem -days 730
-    # TSL certificate for administrator
+    # TSL certificate for the administrator
     openssl genrsa -out $OS_CERTS_PATH/$ADMIN_CA-key-temp.pem 2048
     openssl pkcs8 -inform PEM -outform PEM -in $OS_CERTS_PATH/$ADMIN_CA-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out $OS_CERTS_PATH/$ADMIN_CA-key.pem
     openssl req -new -key $OS_CERTS_PATH/$ADMIN_CA-key.pem -subj "$CERT_DN/CN=$ADMIN_CA" -out $OS_CERTS_PATH/$ADMIN_CA.csr
