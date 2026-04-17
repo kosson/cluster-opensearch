@@ -58,6 +58,14 @@ Pentru a opri containerele: `docker compose down`.
 
 Dacă totul este ok, ar trebui să primești date pentru `curl -k --cert assets/ssl/admin.pem --key assets/ssl/admin-key.pem -XGET https://0.0.0.0:9200/_cluster/health?pretty -u admin:admin`. Remarcă faptul că `status` are valoarea `red`. Verifică mai întâi dacă ai răspuns la comanda anterioară. Dacă da, sari direct la pasul 4.
 
+Închidere și repornire de la zero:
+
+```bash
+docker compose down -v --remove-orphans
+sudo rm -rf assets/opensearch/data/os{01,02,03,04,05}data/nodes
+docker compose up
+```
+
 ### Pasul 3
 
 Rulează comanda pentru a crea datele inițiale în `.opendistro_security`:

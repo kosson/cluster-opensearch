@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 docker stop $(docker ps -aq);
 docker container rm -f $(docker container ls -aq);
 docker volume rm $(docker volume ls -q --filter dangling=true);

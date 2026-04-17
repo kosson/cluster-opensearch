@@ -20,7 +20,7 @@ services:
       - ./assets/opensearch/config/os01/opensearch.yml:/usr/share/opensearch/config/opensearch.yml      
       - ./assets/opensearch/config/os01/opensearch-security/config.yml:/usr/share/opensearch/config/opensearch-security/config.yml
       - ./assets/opensearch/config/os01/opensearch-security/internal_users.yml:/usr/share/opensearch/config/opensearch-security/internal_users.yml
-      - ./assets/opensearch/config/os01/opensearch-security/roles_mapping.yml:/usr/share/opensearch/config/opensearch-security/roles.yml
+      - ./assets/opensearch/config/os01/opensearch-security/roles.yml:/usr/share/opensearch/config/opensearch-security/roles.yml
       - ./assets/opensearch/config/os01/opensearch-security/roles_mapping.yml:/usr/share/opensearch/config/opensearch-security/roles_mapping.yml
       - ./assets/opensearch/config/os01/opensearch-security/nodes_dn.yml:/usr/share/opensearch/config/opensearch-security/nodes_dn.yml
       - ./assets/opensearch/data/os01data:/usr/share/opensearch/data:rw
@@ -42,7 +42,7 @@ services:
       - network.publish_host=os01
       - cluster.name=${OS_CLUSTER_NAME}
       - discovery.seed_hosts=os01,os02,os03,os04,os05 # Nodes to look for when discovering the cluster
-      - cluster.initial_cluster_manager_nodes=os01,os02,os03 # Nodes eligible to serve as cluster manager
+      - cluster.initial_cluster_manager_nodes=os01,os02 # Nodes eligible to serve as cluster manager
       - bootstrap.memory_lock=true # Disable JVM heap memory swapping
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
@@ -59,7 +59,7 @@ services:
       - osearch # All of the containers will join the same Docker bridge network
       - knonikl
     healthcheck:
-      test: ["CMD-SHELL", "curl -k -XGET https://0.0.0.0:9200/_cat/nodes?pretty -u 'admin:${OPENSEARCH_INITIAL_ADMIN_PASSWORD}' || exit 1"]
+      test: ["CMD-SHELL", "curl -k -XGET https://os01:9200/_cat/nodes?pretty -u 'admin:${OPENSEARCH_INITIAL_ADMIN_PASSWORD}' || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -92,7 +92,7 @@ services:
       - network.publish_host=os02
       - cluster.name=${OS_CLUSTER_NAME}
       - discovery.seed_hosts=os01,os02,os03,os04,os05
-      - cluster.initial_cluster_manager_nodes=os01,os02,os03
+      - cluster.initial_cluster_manager_nodes=os01,os02
       - bootstrap.memory_lock=true
       - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
       - DISABLE_INSTALL_DEMO_CONFIG=true
@@ -134,7 +134,7 @@ services:
       - node.roles=data,ingest
       - cluster.name=${OS_CLUSTER_NAME}
       - discovery.seed_hosts=os01,os02,os03,os04,os05
-      - cluster.initial_cluster_manager_nodes=os01,os02,os03
+      - cluster.initial_cluster_manager_nodes=os01,os02
       - bootstrap.memory_lock=true
       - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
       - DISABLE_INSTALL_DEMO_CONFIG=true
@@ -217,7 +217,7 @@ services:
       - bootstrap.memory_lock=true
       - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
       - DISABLE_INSTALL_DEMO_CONFIG=true
-    # extra_hosts:
+    # extra_hosts:2
     #   - "os05=127.0.0.1"
     ulimits:
       memlock:
@@ -246,7 +246,7 @@ services:
     expose:
       - 5601
     environment:
-      - OPENSEARCH_HOSTS='["https://os01:9200","https://os02:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
+      - OPENSEARCH_HOSTS=["https://os01:9200","https://os02:9200"] # Define the OpenSearch nodes that OpenSearch Dashboards will query
     networks:
       - osearch
       - knonikl
@@ -255,7 +255,7 @@ services:
       - os02
       - os03
 # volumes: # activate in case you want to create container volumes for the OpenSearch data directories instead of bind mounting local directories
-#   os01data:
+#   os01data:2
 #   os02data:
 #   os03data:
 #   os04data:
