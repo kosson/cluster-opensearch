@@ -13,9 +13,5 @@ dashboards:
     allowed_actions:
     - crud
     - search
-  tenant_permissions:
-  - tenant_patterns:
-    - "Global"
-    allowed_actions:
-    - "kibana_all_write"
+  # tenant_permissions removed — multi-tenancy was removed in OpenSearch 3.0
   static: false

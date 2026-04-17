@@ -10,7 +10,7 @@ plugins.security.ssl.http.pemtrustedcas_filepath: /usr/share/opensearch/config/r
 plugins.security.ssl.http.clientauth_mode: OPTIONAL
 plugins.security.audit.type: internal_opensearch
 ############## REST Management API configuration settings ##############
-plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access", "anomaly_full_access", "asynchronous_search_full_access", "index_management_full_access", "security_manager", "kibana_server"]
+plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access", "dashboards"]
 plugins.security.restapi.admin.enabled: true
 # Updates the existing configuration using the REST API.
 plugins.security.unsupported.restapi.allow_securityconfig_modification: true
@@ -64,3 +64,7 @@ plugins.security.nodes_dn:
   - 'CN=os05,OU=DFCTI,O=NIPNE,L=Magurele,ST=ILFOV,C=RO'
   - 'CN=dashboards,OU=DFCTI,O=NIPNE,L=Magurele,ST=ILFOV,C=RO'
 http.detailed_errors.enabled: true
+# W2: compliance field-masking salt (must be identical on all nodes)
+plugins.security.compliance.salt: "UBXV7lHLHhDFiDkh"
+# W3: SQL plugin datasource encryption master key
+plugins.query.datasources.encryption.masterkey: "588d61e1f0c925c8b8c7ce3ea6e27120"

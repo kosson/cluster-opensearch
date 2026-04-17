@@ -24,6 +24,7 @@ services:
       - ./assets/opensearch/config/os01/opensearch-security/roles_mapping.yml:/usr/share/opensearch/config/opensearch-security/roles_mapping.yml
       - ./assets/opensearch/config/os01/opensearch-security/nodes_dn.yml:/usr/share/opensearch/config/opensearch-security/nodes_dn.yml
       - ./assets/opensearch/data/os01data:/usr/share/opensearch/data:rw
+      - ./assets/opensearch/performance-analyzer:/usr/share/opensearch/config/opensearch-performance-analyzer
       # - os01data:/usr/share/opensearch/data # Creates volume called os01data and mounts it to the container
     restart: on-failure
     ports:
@@ -46,7 +47,6 @@ services:
       - bootstrap.memory_lock=true # Disable JVM heap memory swapping
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       - DISABLE_INSTALL_DEMO_CONFIG=true
     ulimits:
       memlock:
@@ -57,12 +57,11 @@ services:
         hard: 65536
     networks:
       - osearch # All of the containers will join the same Docker bridge network
-      - knonikl
     healthcheck:
-      test: ["CMD-SHELL", "curl -k -XGET https://os01:9200/_cat/nodes?pretty -u 'admin:${OPENSEARCH_INITIAL_ADMIN_PASSWORD}' || exit 1"]
+      test: ["CMD-SHELL", "curl -ks --fail https://os01:9200/_cat/nodes?pretty -u \"admin:${OPENSEARCH_INITIAL_ADMIN_PASSWORD}\""]
       interval: 5s
-      timeout: 5s
-      retries: 20
+      timeout: 10s
+      retries: 30
     logging:
       driver: "json-file"
       options:
@@ -84,9 +83,12 @@ services:
       - ./assets/opensearch/config/os02/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os02/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
       - ./assets/opensearch/data/os02data:/usr/share/opensearch/data:rw
+      - ./assets/opensearch/performance-analyzer:/usr/share/opensearch/config/opensearch-performance-analyzer
       # - os02data:/usr/share/opensearch/data # Creates volume called os02data and mounts it to the container
     hostname: os02
+    env_file: .env
     environment:
+      - node.roles=cluster_manager,data,ingest
       - node.name=os02
       - network.host=os02
       - network.publish_host=os02
@@ -125,8 +127,10 @@ services:
       - ./assets/opensearch/config/os03/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os03/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
       - ./assets/opensearch/data/os03data:/usr/share/opensearch/data:rw
+      - ./assets/opensearch/performance-analyzer:/usr/share/opensearch/config/opensearch-performance-analyzer
       # - os03data:/usr/share/opensearch/data # Creates volume called os03data and mounts it to the container
-    hostname: os03      
+    hostname: os03
+    env_file: .env
     environment:
       - node.name=os03
       - network.host=os03
@@ -138,8 +142,8 @@ services:
       - bootstrap.memory_lock=true
       - OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS}
       - DISABLE_INSTALL_DEMO_CONFIG=true
-    extra_hosts:
-      - "os03=127.0.0.1"
+    # extra_hosts:   # C4 fix: self-mapping breaks cluster transport
+    #   - "os03=127.0.0.1"
     ulimits:
       memlock:
         soft: -1
@@ -164,8 +168,10 @@ services:
       - ./assets/opensearch/config/os04/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os04/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
       - ./assets/opensearch/data/os04data:/usr/share/opensearch/data:rw
+      - ./assets/opensearch/performance-analyzer:/usr/share/opensearch/config/opensearch-performance-analyzer
       # - os04data:/usr/share/opensearch/data # Creates volume called os04data and mounts it to the container
-    hostname: os04      
+    hostname: os04
+    env_file: .env
     environment:
       - node.roles=data,ingest
       - node.name=os04
@@ -203,8 +209,10 @@ services:
       - ./assets/opensearch/config/os05/jvm.options:/usr/share/opensearch/config/jvm.options
       - ./assets/opensearch/config/os05/log4j2.properties:/usr/share/opensearch/config/log4j2.properties
       - ./assets/opensearch/data/os05data:/usr/share/opensearch/data:rw
+      - ./assets/opensearch/performance-analyzer:/usr/share/opensearch/config/opensearch-performance-analyzer
       # - os05data:/usr/share/opensearch/data # Creates volume called os05data and mounts it to the container
     hostname: os05
+    env_file: .env
     environment:
       - node.name=os05
       - network.host=os05
@@ -251,11 +259,10 @@ services:
       - osearch
       - knonikl
     depends_on:
-      - os01
-      - os02
-      - os03
+      os01:
+        condition: service_healthy
 # volumes: # activate in case you want to create container volumes for the OpenSearch data directories instead of bind mounting local directories
-#   os01data:2
+#   os01data:
 #   os02data:
 #   os03data:
 #   os04data:

@@ -28,11 +28,43 @@ else
 fi
 
 rm -f $OS_CERTS_PATH/$ADMIN_CA.csr $OS_CERTS_PATH/$ADMIN_CA-key-temp.pem
-# cp $OS_CERTS_PATH/admin.pem $DASHBOARDS_CERTS_PATH
-# cp $OS_CERTS_PATH/admin-key.pem $DASHBOARDS_CERTS_PATH
-# cp $OS_CERTS_PATH/root-ca.pem $DASHBOARDS_CERTS_PATH
-# cp $OS_CERTS_PATH/root-ca-key.pem $DASHBOARDS_CERTS_PATH
-# mv $OS_CERTS_PATH/dashboards.pem $DASHBOARDS_CERTS_PATH
-# mv $OS_CERTS_PATH/dashboards-key.pem $DASHBOARDS_CERTS_PATH
-# chmod -R 755 $DASHBOARDS_CERTS_PATH
 rm -f $OS_CERTS_PATH/root-ca.srl
+
+# --- Compliance salt and SQL datasource master key ---------------------------------
+# Both values must be identical on every node. They are generated once here and
+# written into all os*/opensearch.yml files so the cluster is consistent.
+#
+# WARNING: Do NOT regenerate the SQL masterkey after the cluster has been used to
+# store datasource credentials — re-running this script on an existing cluster will
+# produce a new key and make any previously stored encrypted credentials unreadable.
+# Run this script only when setting up a fresh cluster (after restart-to-clear-cluster.sh).
+
+COMPLIANCE_SALT="$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 16)"
+SQL_MASTERKEY="$(openssl rand -hex 16)"
+CONFIG_BASE="$SCRIPT_DIR/assets/opensearch/config"
+
+for cfg in "$CONFIG_BASE"/os*/opensearch.yml; do
+    if grep -q "^plugins.security.compliance.salt:" "$cfg"; then
+        sed -i "s|^plugins.security.compliance.salt:.*|plugins.security.compliance.salt: \"$COMPLIANCE_SALT\"|" "$cfg"
+    else
+        echo "plugins.security.compliance.salt: \"$COMPLIANCE_SALT\"" >> "$cfg"
+    fi
+    if grep -q "^plugins.query.datasources.encryption.masterkey:" "$cfg"; then
+        sed -i "s|^plugins.query.datasources.encryption.masterkey:.*|plugins.query.datasources.encryption.masterkey: \"$SQL_MASTERKEY\"|" "$cfg"
+    else
+        echo "plugins.query.datasources.encryption.masterkey: \"$SQL_MASTERKEY\"" >> "$cfg"
+    fi
+done
+echo "Compliance salt and SQL master key written to all node configs."
+echo "  compliance salt : $COMPLIANCE_SALT"
+echo "  SQL master key  : $SQL_MASTERKEY"
+echo "Store these values securely — they are required to restore the cluster."
+
+# --- Secure file permissions -------------------------------------------------------
+# Config files and private keys must not be world-readable. The Security plugin will
+# log permission warnings at startup if these are not set correctly.
+find "$SCRIPT_DIR/assets/ssl"                        -type f -name "*.pem" | xargs chmod 600
+find "$SCRIPT_DIR/assets/opensearch/config"          -type d               | xargs chmod 700
+find "$SCRIPT_DIR/assets/opensearch/config"          -type f               | xargs chmod 600
+find "$SCRIPT_DIR/assets/opensearch/performance-analyzer" -type f          | xargs chmod 600 2>/dev/null || true
+echo "File permissions set (certs: 600, config dirs: 700, config files: 600)."
